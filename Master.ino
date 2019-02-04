@@ -14,10 +14,9 @@ RF24Mesh mesh(radio, network);        //Defines network as a mesh
 
 struct dataPacket                     //Stucture of data sent over RF
 {
-  uint16_t temperature;                  //Measured temperature
-  //time, in some format
-  uint8_t uniqueNodeID;                   //Unique ID of node - used to know where data was recorded
-  uint8_t nodeDepth;                      //Depth of the sensor on this node
+  float temperature_t;                //Measured temperature
+  uint8_t NodeID_t;                   //Unique ID of node - used to know where data was recorded
+  uint8_t nodeDepth_t;                //Depth of the sensor on this node
 };
 
 void setup()
@@ -54,12 +53,13 @@ void loop()
     {
       case 'M':
       network.read(header, &received, sizeof(received));
-      Serial.print("The temperature is: ");
-      Serial.println(received.temperature);
-      Serial.print("At node ");
-      Serial.print(received.uniqueNodeID);
+      Serial.print("The temperature is ");
+      Serial.print(received.temperature_t);
+      Serial.print(" degrees at node ");
+      Serial.print(received.NodeID_t);
       Serial.print(" which has a depth of ");
-      Serial.println(received.nodeDepth);
+      Serial.print(received.nodeDepth_t);
+      Serial.println(" cm");
       break;
 
       default:

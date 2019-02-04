@@ -32,7 +32,7 @@ uint32_t timer = 0;                   //Used for time keeping
 
 struct dataPacket                     //Stucture of data sent over RF
 {
-  uint16_t temperature;               //Measured temperature
+  float temperature;                  //Measured temperature
   uint8_t uniqueNodeID;               //Unique ID of node - used to know where data was recorded
   uint8_t nodeDepth;                  //Depth of the sensor on this node
 };
@@ -103,7 +103,7 @@ void goToSleep()
   radio.powerUp();        //Restarts radio module
 }
 
-uint32_t takeTemperature()     //Measures temperature from a sensor
+float takeTemperature()     //Measures temperature from a sensor
 {
   sensors.requestTemperatures();      //Send the command to get temperatures
   return(sensors.getTempCByIndex(0));
