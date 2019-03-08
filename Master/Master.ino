@@ -1,12 +1,12 @@
-/*
- * To fix library conflicts, in Sd2PinMap.h, comment lines:
- * 449
- * 450
- * 457
- * 469
- * 471 - 491
- * 
- * Also need to uncomment define SOFTSPI in RF24_config.h
+/* To use software SPI and hardware SPI simultaneously:
+   Attempt to fix library conflicts, in Sd2PinMap.h, comment lines:
+   449
+   450
+   457
+   469
+   471 - 491
+
+   Also need to uncomment define SOFTSPI in RF24_config.h
 */
 #include <SPI.h>
 #include <SD.h>
@@ -14,7 +14,7 @@
 #include "RF24Network.h"
 #include "RF24Mesh.h"
 #include <EEPROM.h>
-#include "DigitalIO.h"
+//#include "DigitalIO.h"
 
 RF24 radio(7, 8);                     //Sets the CE and CS pins
 RF24Network network(radio);           //Begins network using the nRF24L01+ radio
@@ -79,7 +79,21 @@ void loop() {
         dataString += String(received.temperature_t);
         dataString += ", ";
         dataString += String(received.nodeDepth_t);
-        Serial.println(dataString);
+        //Serial.println(dataString);
+        File dataFile = SD.open("datalog.txt", FILE_WRITE);
+
+        // if the file is available, write to it:
+        if (dataFile) {
+          dataFile.println(dataString);
+          dataFile.close();
+          // print to the serial port too:
+          Serial.println(dataString);
+        }
+        // if the file isn't open, pop up an error:
+        else {
+          Serial.println("error opening datalog.txt");
+        }
+        dataString = "0";
         break;
 
       default:
@@ -92,19 +106,19 @@ void loop() {
   }
   // open the file. note that only one file can be open at a time,
   // so you have to close this one before opening another.
-  if (!SD.begin(chipSelect)) {
-    File dataFile = SD.open("datalog.txt", FILE_WRITE);
-
-    // if the file is available, write to it:
-    if (dataFile && dataString != "") {
-      dataFile.println(dataString);
-      dataFile.close();
-      // print to the serial port too:
-      Serial.println(dataString);
-    }
-    // if the file isn't open, pop up an error:
-    else {
-      Serial.println("error opening datalog.txt");
-    }
-  }
+  //if (!SD.begin(chipSelect)) {
+//  File dataFile = SD.open("datalog.txt", FILE_WRITE);
+//
+//  // if the file is available, write to it:
+//  if (dataFile) {
+//    dataFile.println(dataString);
+//    dataFile.close();
+//    // print to the serial port too:
+//    Serial.println(dataString);
+//  }
+//  // if the file isn't open, pop up an error:
+//  else {
+//    Serial.println("error opening datalog.txt");
+//  }
+  //}
 }
