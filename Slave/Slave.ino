@@ -26,8 +26,8 @@ RF24 radio(7, 8);                     //Sets the CE and CS pins
 RF24Network network(radio);           //Begins network using the nRF24L01+ radio
 RF24Mesh mesh(radio, network);        //Defines network as a mesh
 
-const int nodeID = 2;                 //Unique ID of node. In future should be set dynamically during setup
-const int nodeDepth = 30;             //Depth of sensor
+const int nodeID = 4;                 //Unique ID of node. In future should be set dynamically during setup
+const int nodeDepth = 60;             //Depth of sensor
 uint32_t timer = 0;                   //Used for time keeping
 
 struct dataPacket                     //Stucture of data sent over RF
