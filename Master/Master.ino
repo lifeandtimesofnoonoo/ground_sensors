@@ -1,4 +1,5 @@
 /*
+    The intended purpose of this code is to allow the master node to receive data from any node in the network and record it
     To use: set RF24_SPI_SPEED = 250000 in RF24_config.h
 */
 #include <SPI.h>
