@@ -1,7 +1,7 @@
 # Ground sensors
 3rd year group project at UoN - designing sensors to be placed in the ground.
 
-There is a single master device that can comminucate with up to 254 slave devices. ATmega328P chips, using the Arduino bootloader, are used as the MCUs on all devices.
+There is a single master device that can comminucate with up to 255 slave devices. ATmega328P chips, using the Arduino bootloader, are used as the MCUs on all devices.
 nRF24L01+ radios are used to communicate between all nodes.
 The slaves in particular are designed to use as little battery power as possible, intending to spend months in the ground running on battery power.
 
