@@ -1,6 +1,13 @@
 /*
-The intended purpose of this code is to allow any slave sensor node to take sensor readings and relay them back to
-the master node via a mesh network while spending as much time as possible in a low power state.
+    The intended purpose of this code is to allow any slave sensor node to take sensor readings and relay them back to
+    the master node via a mesh network while spending as much time as possible in a low power state.
+
+    ***************************************************************
+    ***************************************************************
+    TO USE:
+    Uncomment #define ENABLE_SLEEP_MODE in RF24Network_config.h
+    ***************************************************************
+    ***************************************************************
 */
 
 #include "RF24.h"
@@ -12,6 +19,8 @@ the master node via a mesh network while spending as much time as possible in a 
 #include <avr/power.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+
+//#define gs_serial_debug               //Uncomment to enable serial debugging
 
 // Data wire is plugged into port 2 on the Arduino
 #define ONE_WIRE_BUS 2
@@ -26,7 +35,7 @@ RF24 radio(7, 8);                     //Sets the CE and CS pins
 RF24Network network(radio);           //Begins network using the nRF24L01+ radio
 RF24Mesh mesh(radio, network);        //Defines network as a mesh
 
-const int nodeID = 4;                 //Unique ID of node. In future should be set dynamically during setup
+const int nodeID = 1;                 //Unique ID of node. In future should be set dynamically during setup
 const int nodeDepth = 60;             //Depth of sensor
 uint32_t timer = 0;                   //Used for time keeping
 
@@ -39,12 +48,16 @@ struct dataPacket                     //Stucture of data sent over RF
 
 void setup() 
 {
-
+  #ifdef gs_serial_debug
   Serial.begin(115200);               //For debugging - final product unlikely to use serial
+  #endif
 
   sensors.begin();
+  
+  #ifdef gs_serial_debug
   Serial.println(F("Sensor test:"));
   Serial.println(takeTemperature());
+  #endif
 
   // network.setup_watchdog(9);          //Sets up watchdog timer, 9 denotes a time period of 8 seconds, the longest possible (I'm pretty certain this means the greatest power saving)
   
@@ -61,11 +74,16 @@ void setup()
   SMCR |= 1;            //enable sleep
 
   mesh.setNodeID(nodeID);             //Sets the nodeID manually
+
+  #ifdef gs_serial_debug
   Serial.println(F("I am a slave!"));
+  #endif
   
-  mesh.begin(MESH_DEFAULT_CHANNEL, RF24_250KBPS, MESH_RENEWAL_TIMEOUT);     //Required for connecting to the mesh
+  mesh.begin(74, RF24_250KBPS, MESH_RENEWAL_TIMEOUT);     //Required for connecting to the mesh
                                                                             //data rate set as low as possible to increase antenna sensitivity
+  #ifdef gs_serial_debug
   Serial.println(F("Connected to the mesh"));
+  #endif
 }
 
 void loop() 
@@ -78,27 +96,37 @@ void loop()
     
     struct dataPacket toBeSent = {takeTemperature(), nodeID, nodeDepth};
 
+    #ifdef gs_serial_debug
     Serial.println("Sending data...");
+    #endif
 
     if(!mesh.write(&toBeSent, 'M', sizeof(toBeSent)))   //If write fails, check conectivity
     {
       if(!mesh.checkConnection())                         //Refresh the network address 
       {
+        #ifdef gs_serial_debug
         Serial.println("Renewing Address");
+        #endif
+        
         mesh.renewAddress();                              //Re-establishes connection to mesh
       } 
       else 
       {
+        #ifdef gs_serial_debug
         Serial.println("Send fail, Network test OK");
+        #endif
       }
     }
 }
 
 void goToSleep(int cycles)      //Cycles are periods of 8 seconds
 {
+  #ifdef gs_serial_debug
   Serial.println("Sleeping...");
   Serial.println("");
-  delay(2);
+  delay(5);
+  #endif
+  
   radio.powerDown();      //Powers down radio module - testing may be required as to how this affects mesh functionality - should also be able to reduce power consumption without completely powering down?
 
   for (cycles; cycles >= 0; cycles--)          
@@ -110,7 +138,10 @@ void goToSleep(int cycles)      //Cycles are periods of 8 seconds
   }
 
   radio.powerUp();        //Restarts radio module
+
+  #ifdef gs_serial_debug
   Serial.println("I'm awake!");
+  #endif
 }
 
 float takeTemperature()     //Measures temperature from a sensor
